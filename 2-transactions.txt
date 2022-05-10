@@ -1,0 +1,90 @@
+Transactions
+------------
+
+motivated by two independent requirements
+concurrent db access
+resilienece to system failures
+
+
+concurrent = a whole bunch of shit going on at once
+concurrent db access:
+	data -> dbms -> (server) -> users : select, update, create table, drop index, help, delete
+	
+	attribute-level inconsistency
+	
+		ex 1 - value level
+			client 1: update value + 1500
+			-- concurrent with... --
+			client 2: update value + 1000
+			
+			what happens?
+			if val starts @ 5000
+				option 1: 5000 + 1500 + 1000 = 7500
+				option 2: 6500
+				option 3: 6000
+			get; modify; put; on value level
+	
+		
+		ex 2 - tuple level
+			tuple on columns string1 and string3
+			client 1: update string1 = 'new'   where id = 5
+			client 2: update string3 = 'hello' where id = 5
+			
+			get; modify; put; on tuple level
+		
+		
+		ex 3 - table level
+			client 1: update table set decision = 'Y'
+					  where id in (select sid from student where gpa > 3.9)
+			
+			client 2: update studnet set gpa = (1.1)*gpa where sizeHS > 2500
+			get; modify; put; on table level
+		
+		ex 4 - multistatment inconsistency
+			client 1: insert into archive
+					  select * from apply where decision = 'N';
+					  delete from apply where decision  = 'N';
+					  
+			client 2: select count(*) from apply;
+					  select count(*) from archive;
+					  
+			client 2 should execute either completely before or after client 1
+
+concurrency goal:
+	execute sequence of sql statements so they appear to be running in isolation
+	simple solution -> execute them in isolation
+	but want to enable concurrency whenever safe to do so. databases allow processes that are
+		multiprocessing
+		multithreading
+		asnynchronous
+	
+resilience to system failures
+	ex 1
+	data <- dbms <- bulk load
+				crash
+	half of bulk load has made it to disc @ crash
+	
+	what happens after crash?
+	
+	ex 2
+	or crash during data insertion?
+	
+	ex 3
+	data <- dbms <- updates
+	
+	
+	> must guarantee "all-or-nothing" exeuction, regardless of failures
+	
+Transactions are used to deal with concurrency and resilience
+	* 1 or more operations treated as a unit
+	* transaction appear to run in isolation
+	* run to completion or not at all
+	
+	- transaction begins automatically on first sql statement
+	- on "commit" transaction ends and new one begins
+	- current transactions ends on session termination
+	- "autocommit" each statement ran as statement on its own
+	
+	
+	commit 		select 		update 		commit    update   create index   select   commit
+	 * ----------------------------------->|---------------------------------------->|

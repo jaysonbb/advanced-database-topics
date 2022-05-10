@@ -1,0 +1,20 @@
+Properties of transactions
+--------------------------
+solution for both conurrency and failures, appear to run and isolation, run entirely or not at all
+
+ACID properties
+	A -> atomicity
+	C -> consistency
+	I -> isolation
+	D -> durability
+	
+	isolation
+		a whole shit ton of clients working on db
+		each client issues sequence of transactions to db 
+		each transaction can be a sequence of statement which are treated as a unit
+		
+		serializability:
+			operations w/in transactions may be interleaved, but execution must be equivalent to some sequential (serial) order of all transactions
+			
+			what the hell does that mean? do you ask?
+				the system must guarantee that the state of the database reflects as if the transactions were executed in order. regardless of interleaving of statements
